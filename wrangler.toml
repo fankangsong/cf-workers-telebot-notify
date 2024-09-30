@@ -1,0 +1,4 @@
+[vars]
+AUTH_TOKEN = ""
+CHAT_ID = ""
+TELEGRAM_BOT_KEY = ""
