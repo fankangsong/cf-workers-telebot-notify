@@ -1,12 +1,36 @@
 import { Hono } from "hono";
 
 const TELEGRAM_API = "https://api.telegram.org/bot";
+interface Env {
+  AUTH_TOKEN: string;
+  CHAT_ID: string;
+  TELEGRAM_BOT_KEY: string;
+}
 
 // Start a Hono app
 const app = new Hono<{ Bindings: Env }>();
 
-app.get("/", async (c) => {
-  const { token, text } = c.req.query();
+async function getBodyParams(c) {
+  if (!["POST", "PUT", "PATCH"].includes(c.req.method)) {
+    return {};
+  }
+
+  try {
+    return await c.req.parseBody();
+  } catch (error) {
+    console.error("Error parsing request body:", error);
+    return {};
+  }
+}
+
+async function getParams(c) {
+  const query = c.req.query();
+  const body = await getBodyParams(c);
+  return { ...query, ...body };
+}
+
+app.all("/", async (c) => {
+  const { token, text } = await getParams(c);
 
   if (!token) return c.text("token is required");
   if (!text) return c.text("text is required");
